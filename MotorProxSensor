@@ -1,0 +1,73 @@
+// Grace Jun 
+// Design (Dis)ability & Parsons The New School
+
+
+#include <NewPing.h>
+#include <Servo.h> 
+
+Servo microServo;
+int servoPin = 9;
+
+int distance;
+int angle;
+int MoterSpeed;
+
+
+#define TRIGGER_PIN  7  // Arduino pin tied to trigger pin on the ultrasonic sensor.
+#define ECHO_PIN     6  // Arduino pin tied to echo pin on the ultrasonic sensor.
+#define MAX_DISTANCE 200 // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
+
+NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
+
+void setup() {
+    microServo.attach(servoPin);   // same as 9
+    pinMode(TRIGGER_PIN, OUTPUT);
+    pinMode(ECHO_PIN, INPUT);
+    Serial.begin(9600);
+ }
+
+void loop() {
+  
+  delay(10);                      // Wait 50ms between pings (about 20 pings/sec). 29ms should be the shortest delay between pings.
+  unsigned int uS = sonar.ping(); // Send ping, get ping time in microseconds (uS).
+  distance = uS / US_ROUNDTRIP_CM;
+  Serial.println("Ping: ");
+  Serial.print(distance); // Convert ping time to distance in cm and print result (0 = outside set distance range)
+  Serial.println("cm");
+  
+  if (distance <= 5)
+  {
+    MoterSpeed = 20;
+    
+  }
+  else if(distance <= 10)
+  {
+    MoterSpeed = 30;
+  }
+  else
+  {
+    MoterSpeed = 80;
+  }
+  
+  Serial.println("motorspeed " + String(MoterSpeed));
+    
+  for(angle =0; angle<90; angle+=4){  // from zero to 180, internvals of plus 1
+    microServo.write(angle);  //write the angle to the servo
+    Serial.println("is closing");    
+    delay(MoterSpeed);  // with a delay in between of 20
+    //if (distance > 5){
+      //break;
+    //}
+  }
+
+  for(angle = 90; angle > 0; angle-=4){  // from zero to 180, internvals of plus 1
+    microServo.write(angle);  //write the angle to the servo
+    Serial.println("is open");    
+    delay(MoterSpeed);  // with a delay in between of 20
+    
+     //if (distance > 5){
+     // break;
+    //}
+  }  
+
+}
